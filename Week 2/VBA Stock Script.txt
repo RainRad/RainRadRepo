@@ -1,0 +1,125 @@
+Sub Multi()
+    Dim Sheet As Worksheet
+    Application.ScreenUpdating = False
+    For Each Sheet In Worksheets
+        Sheet.Select
+        Call Stocks
+    Next
+    Application.ScreenUpdating = True
+End Sub
+Sub Stocks():
+'Define Cell Headers
+Range("I1").Value = "Ticker"
+Range("J1").Value = "Yearly Change"
+Range("K1").Value = "Percent Change"
+Range("L1").Value = "Total Stock Volume"
+
+'Define Values
+Dim TotalVolume As LongLong
+Dim StartValue As Integer
+Dim OutputRow As Integer
+TotalVolume = 0
+StartValue = 0
+OutputRow = 2
+
+'Format Column K
+Range("K:K").NumberFormat = "0.00%"
+
+'Find Last Row
+Dim LastRow As Long
+LastRow = Cells(Rows.Count, 1).End(xlUp).Row
+
+'MainLoop
+For Row = 2 To LastRow
+    'Find First Row, Store Beginning Value
+    If Cells(Row, 1).Value <> Cells(Row - 1, 1).Value Then
+        StartValue = Cells(Row, 3).Value
+    End If
+    
+    'Add To Total Volume
+    TotalVolume = TotalVolume + Cells(Row, 7).Value
+    
+    'Actions at End of a Ticker
+    If Cells(Row, 1).Value <> Cells(Row + 1, 1).Value Then
+    
+        'Output Ticker Name
+        Cells(OutputRow, 9).Value = Cells(Row, 1).Value
+        
+        'Output Yearly Change
+        Cells(OutputRow, 10).Value = Cells(Row, 6) - StartValue
+        'Color Coding Column
+        If Cells(OutputRow, 10).Value > 0 Then
+            Cells(OutputRow, 10).Interior.ColorIndex = 4
+        ElseIf Cells(OutputRow, 10).Value < 0 Then
+            Cells(OutputRow, 10).Interior.ColorIndex = 3
+        ElseIf Cells(OutputRow, 10).Value = 0 Then
+            Cells(OutputRow, 10).Interior.ColorIndex = 15
+        End If
+            
+        'Output Percent Change
+        Cells(OutputRow, 11).Value = Cells(OutputRow, 10).Value / StartValue
+        
+        'Output Total Volume
+        Cells(OutputRow, 12).Value = TotalVolume
+        
+        'Resets and Adjustments
+        TotalVolume = 0
+        StartValue = 0
+        OutputRow = OutputRow + 1
+    End If
+Next Row
+
+
+
+'Bonus Operation
+
+'Define Cell Headers
+Range("P1").Value = "Ticker"
+Range("Q1").Value = "Value"
+Range("O2").Value = "Greatest % Increase"
+Range("O3").Value = "Greatest % Decrease"
+Range("O4").Value = "Greatest Total Volume"
+
+'Define Values
+Dim GreatestIncrease As Double
+Dim GreatestDecrease As Double
+GreatestIncrease = 0
+GreatestDecrease = 0
+BonusTotalVolume = 0
+
+'Format Column K
+Range("Q2:Q3").NumberFormat = "0.00%"
+
+'Find Last Row
+Dim BonusLastRow As Integer
+BonusLastRow = Cells(Rows.Count, 9).End(xlUp).Row
+
+
+'Find Greatest % Increase
+For Row = 2 To BonusLastRow
+    If Cells(Row, 11).Value > GreatestIncrease Then
+        GreatestIncrease = Cells(Row, 11).Value
+        Range("P2").Value = Cells(Row, 9).Value
+    End If
+Next Row
+Range("Q2").Value = GreatestIncrease
+
+'Find Greatest % Decrease
+For Row = 2 To BonusLastRow
+    If Cells(Row, 11).Value < GreatestDecrease Then
+        GreatestDecrease = Cells(Row, 11).Value
+        Range("P3").Value = Cells(Row, 9).Value
+    End If
+Next Row
+Range("Q3").Value = GreatestDecrease
+
+'Find GreatestVolume
+For Row = 2 To BonusLastRow
+    If Cells(Row, 12).Value > BonusTotalVolume Then
+        BonusTotalVolume = Cells(Row, 12).Value
+        Range("P4").Value = Cells(Row, 9).Value
+    End If
+Next Row
+Range("Q4").Value = BonusTotalVolume
+
+End Sub
