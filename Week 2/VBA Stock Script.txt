@@ -16,7 +16,7 @@ Range("L1").Value = "Total Stock Volume"
 
 'Define Values
 Dim TotalVolume As LongLong
-Dim StartValue As Integer
+Dim StartValue As Double
 Dim OutputRow As Integer
 TotalVolume = 0
 StartValue = 0
